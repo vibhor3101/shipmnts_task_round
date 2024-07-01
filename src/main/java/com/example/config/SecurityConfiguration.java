@@ -20,7 +20,11 @@ public class SecurityConfiguration {
 
         // Allow all requests without authentication
         http.authorizeHttpRequests(authorize -> authorize
-                .anyRequest().permitAll());
+                .requestMatchers("/api/books/secure/**",
+                        "/api/reviews/secure/**")
+                .authenticated()
+                .anyRequest().permitAll())
+         .oauth2ResourceServer(oauth2 -> oauth2.jwt());
 
 
         // Add CORS filters
@@ -29,8 +33,16 @@ public class SecurityConfiguration {
         // Add content negotiation strategy
         http.setSharedObject(ContentNegotiationStrategy.class,
                 new HeaderContentNegotiationStrategy());
+        // Force a non-empty response body for 401's to make the response friendly
+        Okta.configureResourceServer401ResponseBody(http);
 
         return http.build();
+
+
+
+
+
+
     }
 
 }
